@@ -55,7 +55,7 @@ object Producer {
       .write
       .format("kafka")
       .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("topic", "writeStream")
+      .option("topic", "clickStream")
       .save()
 
   }
