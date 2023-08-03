@@ -17,7 +17,7 @@ object PipelineConstants {
    *  ============================================================================================================== */
 
   val INPUT_FORMAT: String = "csv"
-  val OUTPUT_FORMAT: String = "csv"
+  val OUTPUT_FORMAT: String = "orc"
   val INPUT_FILE_PATH: String = "data/Input/item/Test_data.csv"
   val OUTPUT_FILE_PATH: String = "data/output"
   val NULL_VALUE_PATH: String = "data/null_value_output"

@@ -38,7 +38,7 @@ object writeFileService {
         .option("path", filePath)
         .option("checkpointLocation", "FQDN")
         .start()
-        .awaitTermination(2000)
+        .awaitTermination()
     } catch {
       case e: Exception => writeFileException("Unable to write files to the location: " + filePath)
     }

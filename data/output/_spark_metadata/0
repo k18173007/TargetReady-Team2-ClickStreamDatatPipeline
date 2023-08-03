@@ -1,2 +1,2 @@
 v1
-{"path":"file:///C:/target_ready/Phase%202/TargetReady-Team2-ClickStreamDatatPipeline/data/output/part-00000-20f2376f-ce00-4655-9059-2bc32ff0f7ca-c000.csv","size":3664,"isDir":false,"modificationTime":1691050962027,"blockReplication":1,"blockSize":33554432,"action":"add"}
+{"path":"file:///C:/target_ready/Phase%202/TargetReady-Team2-ClickStreamDatatPipeline/data/output/part-00000-d7510b0a-00d2-4e2a-bb6f-d6075a0bc83d-c000.snappy.orc","size":991,"isDir":false,"modificationTime":1691068853197,"blockReplication":1,"blockSize":33554432,"action":"add"}
