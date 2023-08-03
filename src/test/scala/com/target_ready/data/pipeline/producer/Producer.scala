@@ -8,58 +8,36 @@ package com.target_ready.data.pipeline.producer
 
 
 /**======================== METHOD 1: By Creating Spark Session ======================================*/
-
-import org.apache.spark.sql.SparkSession
+import com.target_ready.data.pipeline.sparkSession.sparkSession.createSparkSession
+import com.target_ready.data.pipeline.services.readFileService.readFile
+import com.target_ready.data.pipeline.services.writeFileService.writeDataToStream
+import com.target_ready.data.pipeline.clenser.clenser.concatenateColumns
+import org.apache.spark.sql.DataFrame
+import com.target_ready.data.pipeline.constants.PipelineConstants.{INPUT_FILE_PATH,INPUT_FORMAT,TOPIC_NAME}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
-object Producer {
-  def main(args: Array[String]): Unit = {
-
-    /** Creating Spark Session */
-    val spark = SparkSession.builder()
-      .appName("TargetReady-Team2-ClickStreamDatatPipeline")
-      .master("local[*]")
-      .getOrCreate()
-
-    //    /** SCHEMA: comment it out in-case you want to drop header of the dataframe */
-    //    val schema = StructType(
-    //      List(
-    //        StructField("item_id", StringType, true),
-    //        StructField("item_price", StringType, true),
-    //        StructField("product_type", StringType, true),
-    //        StructField("department_name", StringType, true)
-    //      )
-    //    )
-
-    /** Reading the data from source directory (.csv file) */
-    val data = spark
-      .read
-      .format("csv")
-      .option("header", "true")
-      .load("data/Input/item/item_data.csv")
-
-
-    /** Concatenating the data columns into one single columns as value */
-    val df = data
-      .select(concat(col("item_id"), lit(','),
-        col("item_price"), lit(','),
-        col("product_type"), lit(","),
-        col("department_name"))
-        .as("value"))
-
-
-    /** Sending the dataframe into kafka topic: writeStream */
-    val query = df
-      .selectExpr("CAST(value AS STRING)")
-      .write
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("topic", "writeStream")
-      .save()
-
-  }
-}
+//object Producer {
+//  def main(args: Array[String]): Unit = {
+//
+//    /** Creating Spark Session */
+//    val spark= createSparkSession()
+//
+//    /** Reading the data from source directory (.csv file) */
+//
+//    val data:DataFrame = readFile(INPUT_FILE_PATH,INPUT_FORMAT)(spark)
+////    logInfo("Item data read from input location complete.")
+//
+//
+//    /** Concatenating the data columns into one single columns as value */
+//    val df = concatenateColumns(data)
+//
+//
+//    /** Sending the dataframe into kafka topic: writeStream */
+//
+//    writeDataToStream(df,TOPIC_NAME)
+//  }
+//}
 
 
 
@@ -86,10 +64,11 @@ object Producer {
 //    val producer: KafkaProducer[String, String] = new KafkaProducer[String, String](config)
 //
 //    /** Input file name  */
-//    val fileName = "C://target_ready//Phase 2//TargetReady-Team2-ClickStreamDatatPipeline//data//Input//item/item_data.csv"
+//    val fileName = "data//Input//item/Test_data.csv"
 //
 //    /** Kafka Topic Name */
-//    val topicName = "clickStream"
+////    val topicName = "writeStreamTest"
+////    val topicName = "NullDataTestStream"
 //
 //
 //    /** The LOOP reads every line of .csv file
@@ -101,7 +80,7 @@ object Producer {
 //      val key = line.split(",") {0} /** Extracting key from every line */
 //
 //      /** Preparing the data */
-//      val record: ProducerRecord[String, String] = new ProducerRecord[String, String](topicName, key, line)
+//      val record: ProducerRecord[String, String] = new ProducerRecord[String, String](TOPIC_NAME, key, line)
 //
 //      /** Send to topic */
 //      producer.send(record)

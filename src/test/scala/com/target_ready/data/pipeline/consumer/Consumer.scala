@@ -1,73 +1,108 @@
 package com.target_ready.data.pipeline.consumer
 
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
+import com.target_ready.data.pipeline.clenser.clenser.{uppercaseColumns,trimColumn,lowercaseColumns,splitColumns}
+import com.target_ready.data.pipeline.services.writeFileService.writeDataToOutputDir
+import com.target_ready.data.pipeline.services.readFileService.loadDataFromStream
+import com.target_ready.data.pipeline.constants.PipelineConstants._
+import com.target_ready.data.pipeline.sparkSession.sparkSession.createSparkSession
+import com.target_ready.data.pipeline.dqCheck.dqCheckMethods.{findNullKeys}
+
+//object Consumer {
+//  def main(args: Array[String]) {
+//
+//   /** Creating Spark Session */
+//    val spark = createSparkSession()
+//
+//
+//    import spark.implicits._
+//
+//    /** Subscribing to the topic and reading data from stream */
+//    val df = loadDataFromStream(TOPIC_NAME)(spark)
+//
+//    val ds = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)").as[(String, String)]
+//
+//    var data:DataFrame=splitColumns(COLUMN_NAMES,ds)
+//
+//    data=uppercaseColumns(data)
+//
+//    data=trimColumn(data)
+//
+//    data=findNullKeys(data,ITEM_ID)
+////    data = removeDuplicates(df,COLUMNS_PRIMARY_KEY_CLICKSTREAM,Some(EVENT_TIMESTAMP_OPTION))
+//    data=lowercaseColumns(data)
+//
+//
+//    /** Saving the Streamed Data */
+//    writeDataToOutputDir(data,OUTPUT_FORMAT,OUTPUT_FILE_PATH)
+//
+//  }
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.functions._
+
+
+
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.Trigger._
-object Consumer {
-  def main(args: Array[String]) {
-
-   /** Creating Spark Session */
-
-    val spark = SparkSession.builder()
-      .appName("TargetReady-Team2-ClickStreamDatatPipeline")
-      .master("local[*]")
-      .getOrCreate()
-
-
-    import spark.implicits._
-
-    /** Subscribing to the topic and reading data from stream */
-
-    val df = spark                                                                   /** Spark Session */
-      .readStream                                                                    /** DataStream Reader*/
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "clickStream")
-      .option("startingOffsets", "earliest")
-      .option("failOnDataLoss","false")
-      .load()                                                                        /** Converting StreamData into DataFrame */
-
-
-      /** Casting Dataframe into Dataset [(String, String)] format */
-
-      df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)").as[(String, String)]
-
-
-      /** Saving the Streamed Data */
-
-      df.writeStream                                                                  /** DataStream Writer */
-      .outputMode("append")
-      .format("orc")
-      .option("path", "data/output")                                                  /** Directory path for saving the data */
-      .option("checkpointLocation", "FQDN")
-      .trigger(ProcessingTime("30 seconds"))                                  /** Refreshing the Consumer in fixed time Interval */
-      .start()
-      .awaitTermination()                                                             /** Stopping the Termination */
-
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import org.apache.spark.sql.functions.{col, from_json, from_csv}
+import org.apache.spark.sql.types.{IntegerType, StringType, StructType}
+//This stream will print the output to File (DFS) ( Kafka -> File)
+//object KafkaConsumer {
+//  def main(args: Array[String]) {
+//    // $example on:init_session$
+//    val spark = SparkSession
+//      .builder()
+//      .appName("Kafkaprocon")
+//      .master("local")
+//      //.config("spark.some.config.option", "some-value")
+//      .getOrCreate()
+//
+//
+//    import spark.implicits._
+//
+//    // Subscribe to 1 topic
+//    val df = spark
+//      .readStream
+//      .format("kafka")
+//      .option("kafka.bootstrap.servers", "localhost:9092")
+//      .option("subscribe", "kafkastream")
+//      .option("startingOffsets", "earliest")
+//      .load()
+//      .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)").as[(String, String)]
+//      .writeStream
+//      .outputMode("append") // default
+//      .outputMode("update") // not supported by CSV
+//      .format("orc")
+//      .option("path", "/tmp/data/output/Clickstream")
+//      .option("checkpointLocation", "/tmp/data/output/checkpointFS2F")
+//      .trigger(ProcessingTime("30 seconds"))  // only change in query
+//      .start()
+//      .awaitTermination()
+//
+//  }
+//}
 
 
 
