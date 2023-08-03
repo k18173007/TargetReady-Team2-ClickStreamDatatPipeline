@@ -2,10 +2,9 @@ package com.target_ready.data.pipeline.services
 
 import com.target_ready.data.pipeline.services.readFileService._
 import com.target_ready.data.pipeline.services.writeFileService._
-import com.target_ready.data.pipeline.clenser.clenser._
+import com.target_ready.data.pipeline.services.tranformationServices.transformDf
 import org.apache.spark.sql.{DataFrame,SparkSession}
 import com.target_ready.data.pipeline.constants.PipelineConstants._
-import com.target_ready.data.pipeline.dqCheck.dqCheckMethods._
 
 object pipelineService {
 
@@ -15,76 +14,20 @@ object pipelineService {
      *                            Reading the data from source directory (.csv file)
      *  ============================================================================================================ */
 
-    val ITEM_DATA: DataFrame = readFile(INPUT_FILE_PATH, INPUT_FORMAT)(spark)
+    val ITEM_DATA_DF: DataFrame = readFile(INPUT_FILE_PATH, INPUT_FORMAT)(spark)
 
 
     /** ==============================================================================================================
-     *                       Concatenating the data columns into one single columns as value
+     *                           Applying transformations on ITEM_DATA_DF
      *  ============================================================================================================ */
 
-    val CONCATENATED_ITEM_DATA = concatenateColumns(ITEM_DATA,COLUMN_NAMES)
+    val TRANSFORMED_DATA_DF=transformDf(ITEM_DATA_DF)
 
 
     /** ==============================================================================================================
-     *                             Sending the dataframe into kafka topic: writeStream
+     *              Saving the final transformed data in output location in required output format(.orc)
      *  ============================================================================================================ */
 
-    writeDataToStream(CONCATENATED_ITEM_DATA, TOPIC_NAME)
-
-
-    /** ==============================================================================================================
-     *                            Subscribing to the topic and reading data from stream
-     *  ============================================================================================================ */
-
-    val df = loadDataFromStream(TOPIC_NAME)(spark)
-
-
-    /** ==============================================================================================================
-     *                          Splitting Dataframe value-column-data into Multiple Columns
-     *  ============================================================================================================ */
-
-    val SPLIT_DATA_DF: DataFrame = splitColumns(COLUMN_NAMES, df)
-
-
-    /** ==============================================================================================================
-     *                                    Converting SPLIT_DATA_DF to UPPERCASE
-     *  ============================================================================================================ */4
-
-    val UPPERCASE_DF = uppercaseColumns(SPLIT_DATA_DF)
-
-
-    /** ==============================================================================================================
-     *                                             Trimming UPPERCASE_DF
-     *  ============================================================================================================ */
-
-    val TRIMMED_DF = trimColumn(UPPERCASE_DF)
-
-
-    /** ==============================================================================================================
-     *                                   Removing null value rows from TRIMMED_DF
-     *  ============================================================================================================ */
-
-    val REMOVED_NULL_VAL_DF = findNullKeys(TRIMMED_DF, ITEM_ID)
-
-
-    /** ==============================================================================================================
-     *                                 Removing duplicate rows from REMOVED_NULL_VAL_DF
-     *  ============================================================================================================ */
-
-    //    data = removeDuplicates(df,COLUMNS_PRIMARY_KEY_CLICKSTREAM,Some(EVENT_TIMESTAMP_OPTION))
-
-
-    /** ==============================================================================================================
-     *                                   Converting REMOVED_NULL_VAL_DF to LOWERCASE
-     *  ============================================================================================================ */
-
-    val LOWERCASE_DF = lowercaseColumns(REMOVED_NULL_VAL_DF)
-
-
-    /** ==============================================================================================================
-     *                                   Saving LOWERCASE_DF to output dir in required format (.orc)
-     *  ============================================================================================================ */
-
-    writeDataToOutputDir(LOWERCASE_DF, OUTPUT_FORMAT, OUTPUT_FILE_PATH)
+    writeDataToOutputDir(TRANSFORMED_DATA_DF, OUTPUT_FORMAT, OUTPUT_FILE_PATH)
   }
 }

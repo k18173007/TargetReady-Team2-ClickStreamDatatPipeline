@@ -87,4 +87,18 @@ object clenser {
     resultDf
   }
 
+
+  /** ==============================================================================================================
+   *                        FUNCTION TO FIND AND REMOVE NULL VALUE ROWS FROM DATAFRAME
+   *  =========================================================================================================== */
+  def findNullKeys(df: DataFrame, column: String): DataFrame = {
+    var resultDf = df
+
+    val nullKeyDataDf: DataFrame = df.filter(col(column).isNull || col(column) === "")
+
+    val notNullKeyData = df.filter(col(column).isNotNull && !(col(column) <=> lit("")))
+    resultDf = notNullKeyData
+    resultDf
+  }
+
 }
